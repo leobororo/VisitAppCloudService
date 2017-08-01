@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Runtime.Serialization.Json;
-using System.Threading.Tasks;
-using System.Web;
 using VisitAppBackend.Models;
 using VisitAppBackend.Repositories;
 
@@ -87,7 +81,7 @@ namespace VisitAppBackend.Services
         /// Remove a visita cujo id é igual ao especificado
         /// </summary>
         /// <param name="id">Uma string representando o id da visita</param>
-        /// <returns></returns>
+        /// <returns>true caso a visita tenha sido removida, false caso contrário</returns>
         public bool DeleteVisit(string id)
         {
             return visitsRepository.DeleteVisit(id);
