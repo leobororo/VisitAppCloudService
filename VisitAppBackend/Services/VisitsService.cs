@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using VisitAppBackend.Models;
 using VisitAppBackend.Repositories;
 
@@ -8,6 +9,17 @@ namespace VisitAppBackend.Services
     public class VisitsService : IVisitsService
     {
         private IVisitsRepository visitsRepository = new VisitsRepository();
+
+        /// <summary>
+        /// Validates the facebook access token.
+        /// </summary>
+        /// <returns><c>true</c>, if facebook access token was validated, <c>false</c> otherwise.</returns>
+        /// <param name="idFacebook">Identifier facebook.</param>
+        /// <param name="accessToken">Access token.</param>
+		public bool ValidateFacebookAccessToken(string idFacebook, string accessToken)
+		{
+			return visitsRepository.ValidateFacebookAccessToken(idFacebook, accessToken);
+		}
 
         /// <summary>
         /// Devolve um objeto do tipo MatchingVisits construído com informações retornada pelo repository
@@ -20,41 +32,38 @@ namespace VisitAppBackend.Services
         /// <returns>MatchingVisits</returns>
         public MatchingVisits GetMatchingVisits(string idsFacebook, string idPlace, string date, int startHour, int endHour)
         {
-            MatchingVisits matchingVisits = null;
+			MatchingVisits matchingVisits = null;
 
-            if (validateQueryParameters(idsFacebook, idPlace, date))
-            {
-                matchingVisits = new MatchingVisits();
+			if (validateQueryParameters(idsFacebook, idPlace, date))
+			{
+				matchingVisits = new MatchingVisits();
 
-                string[] ids = idsFacebook.Split(',');
+				string[] ids = idsFacebook.Split(',');
 
-                ICollection<Visit> sameDayVisits;
-                ICollection<Visit> sameTimeVisits;
-                foreach (var id in ids)
-                {
-                    sameDayVisits = visitsRepository.GetMatchingVisits(id, idPlace, date);
+				ICollection<Visit> sameDayVisits;
+				ICollection<Visit> sameTimeVisits;
+				foreach (var id in ids)
+				{
+					sameDayVisits = visitsRepository.GetMatchingVisits(id, idPlace, date);
 
-                    if (sameDayVisits.Count > 0)
-                    {
-                        foreach (var visit in sameDayVisits)
-                        {
-                            matchingVisits.SameDayVisits.Add(visit);
-                        }
+					if (sameDayVisits.Count > 0)
+					{
+						foreach (var visit in sameDayVisits)
+						{
+							matchingVisits.SameDayVisits.Add(visit);
+						}
 
-                        if (isTimeParametersValid(startHour, endHour))
-                        {
-                            sameTimeVisits = GenerateListOfSameTimeVisits(sameDayVisits, startHour, endHour);
+						sameTimeVisits = GenerateListOfSameTimeVisits(sameDayVisits, startHour, endHour);
 
-                            foreach (var visit in sameTimeVisits)
-                            {
-                                matchingVisits.SameTimeVisits.Add(visit);
-                            }
-                        }
-                    }
-                }
-            }
+						foreach (var visit in sameTimeVisits)
+						{
+							matchingVisits.SameTimeVisits.Add(visit);
+						}
+					}
+				}
+			}
 
-            return matchingVisits;
+			return matchingVisits;
         }
 
         /// <summary>
@@ -64,17 +73,40 @@ namespace VisitAppBackend.Services
         /// <returns>ICollection<Visit></returns>
         public ICollection<Visit> GetUserVisits(string idFacebook)
         {
-            ICollection<Visit> userVisits;
+			ICollection<Visit> userVisits;
 
-            if (String.IsNullOrEmpty(idFacebook))
-            {
-                userVisits = null;
-            } else
-            {
-                userVisits = visitsRepository.GetUserVisits(idFacebook);
-            }
+			if (String.IsNullOrEmpty(idFacebook))
+			{
+				userVisits = null;
+			}
+			else
+			{
+				userVisits = new List<Visit>();
+				ICollection<Visit> allCurrentUserVisits = visitsRepository.GetUserVisits(idFacebook);
+				DateTime today = DateTime.Today;
 
-            return userVisits;
+				foreach (var visit in allCurrentUserVisits)
+				{
+					DateTimeFormatInfo brDtfi = new CultureInfo("pt-BR", false).DateTimeFormat;
+					DateTime visitDate = Convert.ToDateTime(visit.DataVisita, brDtfi);
+
+					if (visitDate.CompareTo(today) < 0)
+					{
+						if (!DeleteVisit(visit.ObjectId))
+						{
+							userVisits = null;
+							break;
+						}
+
+					}
+					else
+					{
+						userVisits.Add(visit);
+					}
+				}
+			}
+
+			return userVisits;
         }
 
         /// <summary>

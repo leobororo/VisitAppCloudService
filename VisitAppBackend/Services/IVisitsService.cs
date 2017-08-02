@@ -6,6 +6,14 @@ namespace VisitAppBackend.Services
     interface IVisitsService
     {
         /// <summary>
+        /// Validates the facebook access token.
+        /// </summary>
+        /// <returns><c>true</c>, if facebook access token was validated, <c>false</c> otherwise.</returns>
+        /// <param name="idFacebook">Identifier facebook.</param>
+        /// <param name="accessToken">Access token.</param>
+		bool ValidateFacebookAccessToken(string idFacebook, string accessToken);
+
+        /// <summary>
         /// Devolve um objeto do tipo MatchingVisits construído com informações retornada pelo repository
         /// </summary>
         /// <param name="idsFacebook">Um string contendo uma lista de ids do facebook separados por vírgula</param>

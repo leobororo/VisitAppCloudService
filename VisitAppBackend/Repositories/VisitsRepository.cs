@@ -13,6 +13,11 @@ namespace VisitAppBackend.Repositories
 {
     public class VisitsRepository : IVisitsRepository
     {
+		public bool ValidateFacebookAccessToken(string idFacebook, string accessToken)
+		{
+			return Task.Run(() => ValidateFacebookAccessTokenTask(idFacebook, accessToken)).Result;
+		}
+
         public ICollection<Visit> GetMatchingVisits(string idFacebook, string idPlace, string date)
         {
             return Task.Run(() => GetMatchingVisitsTask(idFacebook, idPlace, date)).Result;
@@ -32,6 +37,19 @@ namespace VisitAppBackend.Repositories
         {
             return Task.Run(() => DeleteVisitTask(id)).Result;
         }
+
+		private async Task<bool> ValidateFacebookAccessTokenTask(string idFacebook, String accessToken)
+		{
+			HttpClient httpClient = new HttpClient();
+
+			httpClient.DefaultRequestHeaders.Accept.Clear();
+			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+			var serializer = new DataContractJsonSerializer(typeof(Visits));
+			HttpResponseMessage response = await httpClient.GetAsync("https://graph.facebook.com/" + idFacebook + "/permissions?access_token=" + accessToken);
+
+			return response.IsSuccessStatusCode;
+		}
 
         private async Task<ICollection<Visit>> GetUserVisitsTask(string idFacebook)
         {

@@ -6,27 +6,35 @@ using VisitAppBackend.Services;
 
 namespace VisitAppBackend.Controllers
 {
-    public class MatchingVisitsController : ApiController
-    {
-        private IVisitsService visitsService = new VisitsService();
+	public class MatchingVisitsController : ApiController
+	{
+		private IVisitsService visitsService = new VisitsService();
 
-        // GET api/matchingvisits
-        public HttpResponseMessage Get(string idFacebook = "", string idPlace = "", string date = "", int startHour = -1, int endHour = -1)
-        {
-            HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
-            var matchingVisits = visitsService.GetMatchingVisits(idFacebook, idPlace, date, startHour, endHour);
+		// GET api/matchingvisits
+		public HttpResponseMessage Get(string idFacebook = "", string accessToken = "", string idsFacebookFriend = "", string idPlace = "", string date = "", int startHour = -1, int endHour = -1)
+		{
+			HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
 
-            if (matchingVisits == null)
-            {
-                httpResponseMessage.StatusCode = HttpStatusCode.BadRequest;
-            }
-            else
-            {
-                httpResponseMessage.Content = new ObjectContent<MatchingVisits>(matchingVisits, Configuration.Formatters.JsonFormatter);
-                httpResponseMessage.StatusCode = HttpStatusCode.OK;
-            }
+			if (visitsService.ValidateFacebookAccessToken(idFacebook, accessToken))
+			{
+				var matchingVisits = visitsService.GetMatchingVisits(idsFacebookFriend, idPlace, date, startHour, endHour);
 
-            return httpResponseMessage;
-        }
-    }
+				if (matchingVisits == null)
+				{
+					httpResponseMessage.StatusCode = HttpStatusCode.BadRequest;
+				}
+				else
+				{
+					httpResponseMessage.Content = new ObjectContent<MatchingVisits>(matchingVisits, Configuration.Formatters.JsonFormatter);
+					httpResponseMessage.StatusCode = HttpStatusCode.OK;
+				}
+			}
+			else
+			{
+				httpResponseMessage.StatusCode = HttpStatusCode.Unauthorized;
+			}
+
+			return httpResponseMessage;
+		}
+	}
 }
