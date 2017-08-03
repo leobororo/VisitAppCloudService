@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using VisitAppBackend.Models;
 using VisitAppBackend.Repositories;
+using VisitAppBackend.Utils;
 
 namespace VisitAppBackend.Services
 {
@@ -34,7 +35,7 @@ namespace VisitAppBackend.Services
         {
 			MatchingVisits matchingVisits = null;
 
-			if (validateQueryParameters(idsFacebook, idPlace, date))
+			if (Util.isQueryParametersForMatchingValid(idsFacebook, idPlace, date))
 			{
 				matchingVisits = new MatchingVisits();
 
@@ -97,7 +98,6 @@ namespace VisitAppBackend.Services
 							userVisits = null;
 							break;
 						}
-
 					}
 					else
 					{
@@ -128,76 +128,23 @@ namespace VisitAppBackend.Services
         /// <returns>Visit</returns>
         public Visit PostVisit(Visit visit)
         {
-            Visit newVisit = visit;
-
-            MatchingVisits matchingVisits = GetMatchingVisits(visit.IdFacebook, visit.PlaceId, visit.DataVisita, visit.HoraInicioVisita, visit.HoraFimVisita);
-
-            if (matchingVisits.SameTimeVisits.Count == 0)
+            Visit newVisit = null;
+            if (Util.isTimeBoxValid(visit))
             {
-                newVisit = visitsRepository.PostVisit(visit);
+                newVisit = visit;
 
-                if (newVisit != null)
+                MatchingVisits matchingVisits = GetMatchingVisits(visit.IdFacebook, visit.PlaceId, visit.DataVisita, visit.HoraInicioVisita, visit.HoraFimVisita);
+                if (matchingVisits.SameTimeVisits.Count == 0)
                 {
-                    copyVisitData(visit, newVisit);
+                    newVisit = visitsRepository.PostVisit(visit);
+                    if (newVisit != null)
+                    {
+                        Util.copyVisitData(visit, newVisit);
+                    }
                 }
             }
 
             return newVisit;
-        }
-
-        /// <summary>
-        /// Copia os dados de uma visita para outra
-        /// </summary>
-        /// <param name="fromVisit">Visit de onde os dados serão copiados</param>
-        /// <param name="toVisit">Visit para onde os dados serão copiados</param>
-        private void copyVisitData(Visit fromVisit, Visit toVisit)
-        {
-            toVisit.AcompanharAmigos = fromVisit.AcompanharAmigos;
-            toVisit.DataVisita = fromVisit.DataVisita;
-            toVisit.EnderecoPlace = fromVisit.EnderecoPlace;
-            toVisit.HoraFimVisita = fromVisit.HoraFimVisita;
-            toVisit.HoraInicioVisita = fromVisit.HoraInicioVisita;
-            toVisit.IdFacebook = fromVisit.IdFacebook;
-            toVisit.Latitude = fromVisit.Latitude;
-            toVisit.Longitude = fromVisit.Longitude;
-            toVisit.MinutoFimVisita = fromVisit.MinutoFimVisita;
-            toVisit.MinutoInicioVisita = fromVisit.MinutoInicioVisita;
-            toVisit.NomePlace = fromVisit.NomePlace;
-            toVisit.PlaceId = fromVisit.PlaceId;
-            toVisit.UpdatedAt = toVisit.CreatedAt;
-        }
-
-        /// <summary>
-        /// Verifica se todas as strings são não nulas e não vazias
-        /// </summary>
-        /// <param name="idFacebook">Uma string</param>
-        /// <param name="idPlace">Uma string</param>
-        /// <param name="date">Um string</param>
-        /// <returns>true caso todas as strings sejam válidas, false caso contrário</returns>
-        private bool validateQueryParameters(String idFacebook, string idPlace, string date)
-        {
-            return !(String.IsNullOrEmpty(idFacebook) || String.IsNullOrEmpty(idPlace) || String.IsNullOrEmpty(date));
-        }
-
-        /// <summary>
-        /// Verifica se os números representam horas válidas
-        /// </summary>
-        /// <param name="startHour">Número representando uma hora</param>
-        /// <param name="endHour">Número representando uma hora</param>
-        /// <returns>true caso os dois números representem horas, false caso contrário</returns>
-        private bool isTimeParametersValid(int startHour, int endHour)
-        {
-            return isValidTime(startHour) && isValidTime(endHour);
-        }
-
-        /// <summary>
-        /// Verifica se um número representa um horário válido
-        /// </summary>
-        /// <param name="time">Número representando um horário</param>
-        /// <returns>true caso o número represente um horário, false caso contrário</returns>
-        private bool isValidTime(int time)
-        {
-            return time > -1 && time < 24;
         }
 
         /// <summary>

@@ -96,5 +96,5 @@ namespace VisitAppBackend.Controllers
 
 			return httpResponseMessage;
 		}
-	}
+    }
 }
