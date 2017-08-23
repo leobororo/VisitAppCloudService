@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Teste.Exceptions;
 using VisitAppBackend.Models;
-using VisitAppBackend.Repositories;
+using VisitAppBackend.Clients;
 using VisitAppBackend.Utils;
 
 namespace VisitAppBackend.Services
 {
     public class VisitsService : IVisitsService
     {
-        private IVisitsRepository visitsRepository = new VisitsRepository();
+        private IBack4AppClient visitsRepository = new Back4AppClient();
+        private IFacebookClient facebookClient = new FacebookClient();
 
         /// <summary>
         /// Validates the facebook access token.
@@ -17,9 +19,9 @@ namespace VisitAppBackend.Services
         /// <returns><c>true</c>, if facebook access token was validated, <c>false</c> otherwise.</returns>
         /// <param name="idFacebook">Identifier facebook.</param>
         /// <param name="accessToken">Access token.</param>
-		public bool ValidateFacebookAccessToken(string idFacebook, string accessToken)
+		private void ValidateFacebookAccessToken(string idFacebook, string accessToken)
 		{
-			return visitsRepository.ValidateFacebookAccessToken(idFacebook, accessToken);
+			facebookClient.ValidateFacebookAccessToken(idFacebook, accessToken);
 		}
 
         /// <summary>
@@ -31,8 +33,10 @@ namespace VisitAppBackend.Services
         /// <param name="startHour">Um número representando a hora início da visita</param>
         /// <param name="endHour">Um número representando a hora fim da visita</param>
         /// <returns>MatchingVisits</returns>
-        public MatchingVisits GetMatchingVisits(string idsFacebook, string idPlace, string date, int startHour, int endHour)
+        public MatchingVisits GetMatchingVisits(string idFacebook, string accessToken, string idsFacebook, string idPlace, string date, int startHour, int endHour)
         {
+            ValidateFacebookAccessToken(idFacebook, accessToken);
+
 			MatchingVisits matchingVisits = null;
 
 			if (Util.isQueryParametersForMatchingValid(idsFacebook, idPlace, date))
@@ -62,7 +66,9 @@ namespace VisitAppBackend.Services
 						}
 					}
 				}
-			}
+            } else {
+                throw new InvalidMatchingVisitsParametersException("Parâmetros inválidos para consultar matching visits");
+            }
 
 			return matchingVisits;
         }
@@ -72,37 +78,27 @@ namespace VisitAppBackend.Services
         /// </summary>
         /// <param name="idFacebook">Uma string representando o id do facebook do usuário</param>
         /// <returns>ICollection<Visit></returns>
-        public ICollection<Visit> GetUserVisits(string idFacebook)
+        public ICollection<Visit> GetUserVisits(string idFacebook, string accessToken)
         {
-			ICollection<Visit> userVisits;
+            ValidateFacebookAccessToken(idFacebook, accessToken);
 
-			if (String.IsNullOrEmpty(idFacebook))
-			{
-				userVisits = null;
-			}
-			else
-			{
-				userVisits = new List<Visit>();
-				ICollection<Visit> allCurrentUserVisits = visitsRepository.GetUserVisits(idFacebook);
-				DateTime today = DateTime.Today;
+			ICollection<Visit> userVisits = new List<Visit>();
+			ICollection<Visit> allCurrentUserVisits = visitsRepository.GetUserVisits(idFacebook);
 
-				foreach (var visit in allCurrentUserVisits)
+			DateTime today = DateTime.Today;
+
+			foreach (var visit in allCurrentUserVisits)
+			{
+				DateTimeFormatInfo brDtfi = new CultureInfo("pt-BR", false).DateTimeFormat;
+				DateTime visitDate = Convert.ToDateTime(visit.DataVisita, brDtfi);
+
+				if (visitDate.CompareTo(today) < 0)
 				{
-					DateTimeFormatInfo brDtfi = new CultureInfo("pt-BR", false).DateTimeFormat;
-					DateTime visitDate = Convert.ToDateTime(visit.DataVisita, brDtfi);
-
-					if (visitDate.CompareTo(today) < 0)
-					{
-						if (!DeleteVisit(visit.ObjectId))
-						{
-							userVisits = null;
-							break;
-						}
-					}
-					else
-					{
-						userVisits.Add(visit);
-					}
+					DeleteVisit(idFacebook, accessToken, visit.ObjectId);
+				}
+				else
+				{
+					userVisits.Add(visit);
 				}
 			}
 
@@ -114,9 +110,11 @@ namespace VisitAppBackend.Services
         /// </summary>
         /// <param name="id">Uma string representando o id da visita</param>
         /// <returns>true caso a visita tenha sido removida, false caso contrário</returns>
-        public bool DeleteVisit(string id)
+        public void DeleteVisit(string idFacebook, string accessToken, string id)
         {
-            return visitsRepository.DeleteVisit(id);
+            ValidateFacebookAccessToken(idFacebook, accessToken);
+
+            visitsRepository.DeleteVisit(id);
         }
 
         /// <summary>
@@ -126,21 +124,20 @@ namespace VisitAppBackend.Services
         /// </summary>
         /// <param name="visit">Visit a ser salva</param>
         /// <returns>Visit</returns>
-        public Visit PostVisit(Visit visit)
+        public Visit PostVisit(string idFacebook, string accessToken, Visit visit)
         {
+            ValidateFacebookAccessToken(idFacebook, accessToken);
+
             Visit newVisit = null;
             if (Util.isTimeBoxValid(visit))
             {
-                newVisit = visit;
-
-                MatchingVisits matchingVisits = GetMatchingVisits(visit.IdFacebook, visit.PlaceId, visit.DataVisita, visit.HoraInicioVisita, visit.HoraFimVisita);
+                MatchingVisits matchingVisits = GetMatchingVisits(idFacebook, accessToken, visit.IdFacebook, visit.PlaceId, visit.DataVisita, visit.HoraInicioVisita, visit.HoraFimVisita);
                 if (matchingVisits.SameTimeVisits.Count == 0)
                 {
                     newVisit = visitsRepository.PostVisit(visit);
-                    if (newVisit != null)
-                    {
-                        Util.copyVisitData(visit, newVisit);
-                    }
+                    Util.copyVisitData(visit, newVisit);
+                } else {
+                    throw new MatchingVisitException("There is already a visit scheduled for this time");
                 }
             }
 

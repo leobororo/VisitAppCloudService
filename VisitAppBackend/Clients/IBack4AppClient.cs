@@ -1,18 +1,10 @@
 ﻿using System.Collections.Generic;
 using VisitAppBackend.Models;
 
-namespace VisitAppBackend.Repositories
+namespace VisitAppBackend.Clients
 {
-    interface IVisitsRepository
+    interface IBack4AppClient
     {
-        /// <summary>
-        /// Validates the facebook access token.
-        /// </summary>
-        /// <returns><c>true</c>, if facebook access token was validated, <c>false</c> otherwise.</returns>
-        /// <param name="idFacebook">Identifier facebook.</param>
-        /// <param name="accessToken">Access token.</param>
-		bool ValidateFacebookAccessToken(string idFacebook, string accessToken);
-
         /// <summary>
         /// Devolve uma lista de visitas de um determinado usuário do facebook em uma determinado local em um determinado dia
         /// </summary>
@@ -42,6 +34,6 @@ namespace VisitAppBackend.Repositories
         /// </summary>
         /// <param name="id">Uma string representando o id da visita</param>
         /// <returns>true caso a visita tenha sido removida, false caso contrário</returns>
-        bool DeleteVisit(string id);
+        void DeleteVisit(string id);
     }
 }

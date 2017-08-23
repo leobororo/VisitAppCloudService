@@ -5,13 +5,6 @@ namespace VisitAppBackend.Services
 {
     interface IVisitsService
     {
-        /// <summary>
-        /// Validates the facebook access token.
-        /// </summary>
-        /// <returns><c>true</c>, if facebook access token was validated, <c>false</c> otherwise.</returns>
-        /// <param name="idFacebook">Identifier facebook.</param>
-        /// <param name="accessToken">Access token.</param>
-		bool ValidateFacebookAccessToken(string idFacebook, string accessToken);
 
         /// <summary>
         /// Devolve um objeto do tipo MatchingVisits construído com informações retornada pelo repository
@@ -22,29 +15,31 @@ namespace VisitAppBackend.Services
         /// <param name="startHour">Um número representando a hora início da visita</param>
         /// <param name="endHour">Um número representando a hora fim da visita</param>
         /// <returns>MatchingVisits</returns>
-        MatchingVisits GetMatchingVisits(string idFacebook, string idPlace, string date, int horaInicio, int horaFim);
+        /// 
+        /// 
+        MatchingVisits GetMatchingVisits(string idFacebook, string accessToken, string idsFacebook, string idPlace, string date, int horaInicio, int horaFim);
 
         /// <summary>
         /// Devolve todas as visitas de um determinado usuário do facebook
         /// </summary>
         /// <param name="idFacebook">Uma string representando o id do facebook do usuário</param>
         /// <returns>ICollection<Visit></returns>
-        ICollection<Visit> GetUserVisits(string idFacebook);
+        ICollection<Visit> GetUserVisits(string idFacebook, string accessToken);
 
         /// <summary>
-        /// Salva a visita especificada, devolve uma nova visita caso esta tenha sido salva com sucesso, 
+        /// Salva a visita especificada, devolve uma nova visita caso esta tenha sido alva com sucesso, 
         /// uma visita sem identificador caso já exista uma visita salva para o mesmo local, data e horário
         /// e uma visita nula caso não tenha sido possível salvar a visita
         /// </summary>
         /// <param name="visit">Visit a ser salva</param>
         /// <returns>Visit</returns>
-        Visit PostVisit(Visit visit);
+        Visit PostVisit(string idFacebook, string accessToken, Visit visit);
 
         /// <summary>
         /// Remove a visita cujo id é igual ao especificado
         /// </summary>
         /// <param name="id">Uma string representando o id da visita</param>
         /// <returns>true caso a visita tenha sido removida, false caso contrário</returns>
-        bool DeleteVisit(string id);
+        void DeleteVisit(string idFacebook, string accessToken, string id);
     }
 }

@@ -1,6 +1,7 @@
-﻿using System.Net;
+﻿﻿using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using Teste.Exceptions;
 using VisitAppBackend.Models;
 using VisitAppBackend.Services;
 
@@ -15,24 +16,21 @@ namespace VisitAppBackend.Controllers
 		{
 			HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
 
-			if (visitsService.ValidateFacebookAccessToken(idFacebook, accessToken))
+			try
 			{
-				var matchingVisits = visitsService.GetMatchingVisits(idsFacebookFriend, idPlace, date, startHour, endHour);
+				var matchingVisits = visitsService.GetMatchingVisits(idFacebook, accessToken, idsFacebookFriend, idPlace, date, startHour, endHour);
 
-				if (matchingVisits == null)
-				{
-					httpResponseMessage.StatusCode = HttpStatusCode.BadRequest;
-				}
-				else
-				{
-					httpResponseMessage.Content = new ObjectContent<MatchingVisits>(matchingVisits, Configuration.Formatters.JsonFormatter);
-					httpResponseMessage.StatusCode = HttpStatusCode.OK;
-				}
+				httpResponseMessage.Content = new ObjectContent<MatchingVisits>(matchingVisits, Configuration.Formatters.JsonFormatter);
+				httpResponseMessage.StatusCode = HttpStatusCode.OK;
 			}
-			else
+			catch (InvalidTokenException e)
 			{
-				httpResponseMessage.StatusCode = HttpStatusCode.Unauthorized;
+				throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, e.Message));
 			}
+            catch (InvalidMatchingVisitsParametersException e)
+            {
+                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.BadRequest, e.Message));
+            }
 
 			return httpResponseMessage;
 		}

@@ -1,100 +1,90 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
-using VisitAppBackend.Models;
-using VisitAppBackend.Services;
+﻿		using System;
+		using System.Collections.Generic;
+		using System.Net;
+		using System.Net.Http;
+		using System.Web.Http;
+		using Teste.Exceptions;
+		using VisitAppBackend.Models;
+		using VisitAppBackend.Services;
 
-namespace VisitAppBackend.Controllers
-{
-	public class VisitsController : ApiController
-	{
-		private IVisitsService visitsService = new VisitsService();
-
-		// GET api/visits/5
-		public HttpResponseMessage Get(string idFacebook = "", string accessToken = "")
+		namespace VisitAppBackend.Controllers
 		{
-			HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
-
-			if (visitsService.ValidateFacebookAccessToken(idFacebook, accessToken))
+			public class VisitsController : ApiController
 			{
-				var visits = visitsService.GetUserVisits(idFacebook);
+				private IVisitsService visitsService = new VisitsService();
 
-				if (visits == null)
+				// GET api/visits/5
+				public HttpResponseMessage Get(string idFacebook = "", string accessToken = "")
 				{
-					httpResponseMessage.StatusCode = HttpStatusCode.BadRequest;
-				}
-				else
-				{
-					httpResponseMessage.Content = new ObjectContent<ICollection<Visit>>(visits, Configuration.Formatters.JsonFormatter);
-					httpResponseMessage.StatusCode = HttpStatusCode.OK;
-				}
-			}
-			else
-			{
-				httpResponseMessage.StatusCode = HttpStatusCode.Unauthorized;
-			}
+					HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
 
+		            try
+		            {		                
+                        var visits = visitsService.GetUserVisits(idFacebook, accessToken);
 
-			return httpResponseMessage;
-		}
-
-		// POST api/visits
-		public HttpResponseMessage Post(Visit visit, string idFacebook = "", string accessToken = "")
-		{
-			HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
-
-			if (visitsService.ValidateFacebookAccessToken(idFacebook, accessToken))
-			{
-				Visit newVisit = visitsService.PostVisit(visit);
-				if (newVisit != null)
-				{
-					if (String.IsNullOrEmpty(newVisit.ObjectId))
+	                    httpResponseMessage.Content = new ObjectContent<ICollection<Visit>>(visits, Configuration.Formatters.JsonFormatter);
+	                    httpResponseMessage.StatusCode = HttpStatusCode.OK;   
+		            }
+		            catch (InvalidTokenException e)
+		            {
+		                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, e.Message));
+		            }
+					catch (VisitNotFoundException e)
 					{
-						httpResponseMessage.StatusCode = HttpStatusCode.Conflict;
+						throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, e.Message));
 					}
-					else
+
+					return httpResponseMessage;
+				}
+
+				// POST api/visits
+				public HttpResponseMessage Post(Visit visit, string idFacebook = "", string accessToken = "")
+				{
+					HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
+
+					try
 					{
-						httpResponseMessage.Content = new ObjectContent<Visit>(newVisit, Configuration.Formatters.JsonFormatter);
-						httpResponseMessage.StatusCode = HttpStatusCode.Created;
+						Visit newVisit = visitsService.PostVisit(idFacebook, accessToken, visit);
+
+	                    httpResponseMessage.Content = new ObjectContent<Visit>(newVisit, Configuration.Formatters.JsonFormatter);
+	                    httpResponseMessage.StatusCode = HttpStatusCode.Created;
+				    }
+		            catch (InvalidTokenException e)
+		            {
+		                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, e.Message));
+			        }
+                    catch (CouldNotCreateVisitException e)
+					{
+						throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.BadRequest, e.Message));
 					}
-				}
-				else
-				{
-					httpResponseMessage.StatusCode = HttpStatusCode.BadRequest;
-				}
-			}
-			else
-			{
-				httpResponseMessage.StatusCode = HttpStatusCode.Unauthorized;
-			}
+                    catch (MatchingVisitException e)
+					{
+						throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Conflict, e.Message));
+					}
 
-			return httpResponseMessage;
+					return httpResponseMessage;
+				}
+
+				// DELETE api/visits
+				public HttpResponseMessage Delete(string id, string idFacebook = "", string accessToken = "")
+				{
+					HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
+		    
+					try
+					{
+                        visitsService.DeleteVisit(idFacebook, accessToken, id);
+						httpResponseMessage.StatusCode = HttpStatusCode.NoContent;
+		            }
+		            catch (InvalidTokenException e)
+		            {
+		                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.Unauthorized, e.Message));
+		            }
+		            catch (VisitNotFoundException e)
+		            {
+		                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, e.Message));
+		            }
+
+					return httpResponseMessage;
+				}
+		    }
 		}
-
-		// DELETE api/visits
-		public HttpResponseMessage Delete(string id, string idFacebook = "", string accessToken = "")
-		{
-			HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
-
-			if (visitsService.ValidateFacebookAccessToken(idFacebook, accessToken))
-			{
-				if (visitsService.DeleteVisit(id))
-				{
-					httpResponseMessage.StatusCode = HttpStatusCode.NoContent;
-				}
-				else
-				{
-					httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
-				}
-			}
-			else
-			{
-				httpResponseMessage.StatusCode = HttpStatusCode.Unauthorized;
-			}
-
-			return httpResponseMessage;
-		}
-    }
-}
