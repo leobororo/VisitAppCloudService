@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="VisitAppBackend.Repositories.VisitsRepository" BaseTypeListCollapsed="true">
+    <Position X="20.25" Y="6.25" Width="6" />
+    <TypeIdentifier>
+      <HashCode>IAgIAAAAgAAAAAIAEAAAAAAAAAAAAQCAAIAACAAAAAA=</HashCode>
+      <FileName>Repositories\VisitsRepository.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.253" />
+  </Class>
+  <Interface Name="VisitAppBackend.Repositories.IVisitsRepository">
+    <Position X="20.5" Y="3.75" Width="5.25" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAgAAAAAAAAAAAAAAAAAAAAQCAAAAACAAAAAA=</HashCode>
+      <FileName>Repositories\IVisitsRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

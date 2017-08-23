@@ -1,5 +1,6 @@
 ﻿using System;
-namespace Teste.Exceptions
+
+namespace VisitAppBackend.Exceptions
 {
     [Serializable]
     public class CouldNotCreateVisitException : SystemException

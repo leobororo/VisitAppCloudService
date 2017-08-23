@@ -1,7 +1,7 @@
 ﻿﻿using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using Teste.Exceptions;
+using VisitAppBackend.Exceptions;
 using VisitAppBackend.Models;
 using VisitAppBackend.Services;
 

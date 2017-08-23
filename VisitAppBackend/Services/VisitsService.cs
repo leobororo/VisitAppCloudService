@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Teste.Exceptions;
+using VisitAppBackend.Exceptions;
 using VisitAppBackend.Models;
 using VisitAppBackend.Clients;
 using VisitAppBackend.Utils;

@@ -236,11 +236,20 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Clients\Back4AppClient.cs" />
+    <Compile Include="Clients\FacebookClient.cs" />
+    <Compile Include="Clients\IBack4AppClient.cs" />
+    <Compile Include="Clients\IFacebookClient.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MatchingVisitsController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Controllers\VisitsController.cs" />
+    <Compile Include="Exceptions\CouldNotCreateVisitException.cs" />
+    <Compile Include="Exceptions\InvalidMatchingVisitsParametersException.cs" />
+    <Compile Include="Exceptions\InvalidTokenException.cs" />
+    <Compile Include="Exceptions\MatchingVisitException.cs" />
+    <Compile Include="Exceptions\VisitNotFoundException.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -252,8 +261,6 @@
     <Compile Include="Models\Visit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
-    <Compile Include="Repositories\IVisitsRepository.cs" />
-    <Compile Include="Repositories\VisitsRepository.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
     <Compile Include="Services\IVisitsService.cs" />
     <Compile Include="Services\VisitsService.cs" />

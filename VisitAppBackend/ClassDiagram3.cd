@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="VisitAppBackend.Services.VisitsService" BaseTypeListCollapsed="true">
+    <Position X="7.25" Y="4.5" Width="4.25" />
+    <TypeIdentifier>
+      <HashCode>IAAAAACAgAAAAAAAAAAAQAAAAAAAAQCAAAAACACAAAA=</HashCode>
+      <FileName>Services\VisitsService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="1.122" />
+  </Class>
+  <Interface Name="VisitAppBackend.Services.IVisitsService">
+    <Position X="7.25" Y="2" Width="4.25" />
+    <Members>
+      <Method Name="DeleteVisit" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAgAAAAAAAAAAAAAAAAAAAAQCAAAAACAAAAAA=</HashCode>
+      <FileName>Services\IVisitsService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

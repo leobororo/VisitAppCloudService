@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="VisitAppBackend.Controllers.MatchingVisitsController">
+    <Position X="1.75" Y="3.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Controllers\MatchingVisitsController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="visitsService" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="VisitAppBackend.Controllers.VisitsController">
+    <Position X="1.75" Y="1.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAQAAACAEAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Controllers\VisitsController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="visitsService" />
+    </ShowAsAssociation>
+  </Class>
+  <Interface Name="VisitAppBackend.Services.IVisitsService">
+    <Position X="7.25" Y="2.25" Width="3.5" />
+    <Members>
+      <Method Name="DeleteVisit" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAgAAAAAAAAAAAAAAAAAAAAQCAAAAACAAAAAA=</HashCode>
+      <FileName>Services\IVisitsService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
-using Teste.Exceptions;
+using VisitAppBackend.Exceptions;
 using VisitAppBackend.Models;
 
 namespace VisitAppBackend.Clients
