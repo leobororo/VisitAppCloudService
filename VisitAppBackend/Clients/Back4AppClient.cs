@@ -28,7 +28,7 @@ namespace VisitAppBackend.Clients
             return Task.Run(() => GetUserVisitsTask(idFacebook)).Result;
         }
 
-        public Visit PostVisit(Visit visit)
+        public Visit CreateVisit(Visit visit)
         {
             Visit visitCreated = Task.Run(() => PostVisitTask(visit)).Result;
 

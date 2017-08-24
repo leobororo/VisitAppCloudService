@@ -43,7 +43,7 @@ namespace VisitAppBackend.Controllers
 
 			try
 			{
-				Visit newVisit = visitsService.PostVisit(idFacebook, accessToken, visit);
+				Visit newVisit = visitsService.CreateVisit(idFacebook, accessToken, visit);
 
 	            httpResponseMessage.Content = new ObjectContent<Visit>(newVisit, Configuration.Formatters.JsonFormatter);
 	            httpResponseMessage.StatusCode = HttpStatusCode.Created;

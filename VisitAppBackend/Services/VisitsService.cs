@@ -10,7 +10,7 @@ namespace VisitAppBackend.Services
 {
     public class VisitsService : IVisitsService
     {
-        private IBack4AppClient visitsRepository = new Back4AppClient();
+        private IBack4AppClient back4AppClient = new Back4AppClient();
         private IFacebookClient facebookClient = new FacebookClient();
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace VisitAppBackend.Services
 				ICollection<Visit> sameTimeVisits;
 				foreach (var id in ids)
 				{
-					sameDayVisits = visitsRepository.GetMatchingVisits(id, idPlace, date);
+					sameDayVisits = back4AppClient.GetMatchingVisits(id, idPlace, date);
 
 					if (sameDayVisits.Count > 0)
 					{
@@ -83,7 +83,8 @@ namespace VisitAppBackend.Services
             ValidateFacebookAccessToken(idFacebook, accessToken);
 
 			ICollection<Visit> userVisits = new List<Visit>();
-			ICollection<Visit> allCurrentUserVisits = visitsRepository.GetUserVisits(idFacebook);
+            ICollection<Visit> obsoleteVisits = new List<Visit>();
+            ICollection<Visit> allCurrentUserVisits = back4AppClient.GetUserVisits(idFacebook);
 
 			DateTime today = DateTime.Today;
 
@@ -93,16 +94,21 @@ namespace VisitAppBackend.Services
 				DateTime visitDate = Convert.ToDateTime(visit.DataVisita, brDtfi);
 
 				if (visitDate.CompareTo(today) < 0)
-				{
-					DeleteVisit(idFacebook, accessToken, visit.ObjectId);
-				}
-				else
+                {
+                    DeleteObsoleteVisit(idFacebook, accessToken, visit);
+                }
+                else
 				{
 					userVisits.Add(visit);
 				}
 			}
 
 			return userVisits;
+        }
+
+        private void DeleteObsoleteVisit(string idFacebook, string accessToken, Visit visit)
+        {
+            DeleteVisit(idFacebook, accessToken, visit.ObjectId);
         }
 
         /// <summary>
@@ -114,7 +120,7 @@ namespace VisitAppBackend.Services
         {
             ValidateFacebookAccessToken(idFacebook, accessToken);
 
-            visitsRepository.DeleteVisit(id);
+            back4AppClient.DeleteVisit(id);
         }
 
         /// <summary>
@@ -124,7 +130,7 @@ namespace VisitAppBackend.Services
         /// </summary>
         /// <param name="visit">Visit a ser salva</param>
         /// <returns>Visit</returns>
-        public Visit PostVisit(string idFacebook, string accessToken, Visit visit)
+        public Visit CreateVisit(string idFacebook, string accessToken, Visit visit)
         {
             ValidateFacebookAccessToken(idFacebook, accessToken);
 
@@ -134,7 +140,7 @@ namespace VisitAppBackend.Services
                 MatchingVisits matchingVisits = GetMatchingVisits(idFacebook, accessToken, visit.IdFacebook, visit.PlaceId, visit.DataVisita, visit.HoraInicioVisita, visit.HoraFimVisita);
                 if (matchingVisits.SameTimeVisits.Count == 0)
                 {
-                    newVisit = visitsRepository.PostVisit(visit);
+                    newVisit = back4AppClient.CreateVisit(visit);
                     Util.copyVisitData(visit, newVisit);
                 } else {
                     throw new MatchingVisitException("There is already a visit scheduled for this time");

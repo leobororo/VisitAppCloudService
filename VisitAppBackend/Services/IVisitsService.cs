@@ -33,7 +33,7 @@ namespace VisitAppBackend.Services
         /// </summary>
         /// <param name="visit">Visit a ser salva</param>
         /// <returns>Visit</returns>
-        Visit PostVisit(string idFacebook, string accessToken, Visit visit);
+        Visit CreateVisit(string idFacebook, string accessToken, Visit visit);
 
         /// <summary>
         /// Remove a visita cujo id é igual ao especificado

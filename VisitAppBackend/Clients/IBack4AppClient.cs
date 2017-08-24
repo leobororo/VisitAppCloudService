@@ -27,7 +27,7 @@ namespace VisitAppBackend.Clients
         /// </summary>
         /// <param name="visit">Visita a ser salva</param>
         /// <returns>Visit salva ou null</returns>
-        Visit PostVisit(Visit visit);
+        Visit CreateVisit(Visit visit);
 
         /// <summary>
         /// Remove a visita cujo id é igual ao especificado
